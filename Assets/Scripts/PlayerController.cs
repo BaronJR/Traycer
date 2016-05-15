@@ -5,15 +5,15 @@ using UnityEngine.UI;
 public class PlayerController : MonoBehaviour {
 
 	public float speed;
-	public Text countText;
+    public int count;
+    public Text countText;
 	public Text winText;
     public float jump;
     public float jumpTime;
     public float bulletSpeed;
-
+    
 	private Rigidbody2D rb2d;
-	private int count;
-    private Vector2 position;
+	private Vector2 position;
     private bool jumpCD;
     private float jumpTimer;
     private GameObject prefab;
@@ -87,15 +87,9 @@ public class PlayerController : MonoBehaviour {
     //Fire bullets
     void PlayerGun ()
     {
-        float mouseHorizontal = Input.GetAxis("Mouse X");
-        float mouseVertical = Input.GetAxis("Mouse Y");
-        Vector3 mouseAim = new Vector3(mouseHorizontal, mouseVertical, 0);
-        mouseAim = Camera.main.ScreenToWorldPoint (Input.mousePosition);
-        Debug.Log(mouseAim);
+        Vector3 mouseAim = Camera.main.ScreenToWorldPoint (Input.mousePosition);
         mouseAim -= transform.position;
-        Debug.Log(mouseAim);
         mouseAim.Normalize();
-        Debug.Log(mouseAim);
 
         GameObject bullet = Instantiate(prefab) as GameObject;
 
@@ -105,7 +99,7 @@ public class PlayerController : MonoBehaviour {
     }
 
     //Pick up collectibles
-	void SetCountText ()
+	public void SetCountText ()
 	{
 		countText.text = "Bubble Teas: " + count.ToString ();
 
