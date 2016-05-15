@@ -2,22 +2,33 @@
 using System.Collections;
 using UnityEngine.UI;
 
-	public class PlayerController : MonoBehaviour {
+public class PlayerController : MonoBehaviour {
 
 	public float speed;
 	public Text countText;
 	public Text winText;
+    public float jump;
+    public float jumpTime;
+    public float bulletSpeed;
 
 	private Rigidbody2D rb2d;
 	private int count;
+    private Vector2 position;
+    private bool jumpCD;
+    private float jumpTimer;
+    private GameObject prefab;
 
-	void Start()
+    void Start()
 	{
 		rb2d = GetComponent<Rigidbody2D> ();
 		count = 0;
 		winText.text = "";
+        jumpCD = true;
+        jumpTimer = 0;
 		SetCountText ();
-	}
+
+        prefab = Resources.Load("bullet") as GameObject;
+    }
 
 	void FixedUpdate()
 	{
@@ -25,7 +36,43 @@ using UnityEngine.UI;
 		float moveVertical = Input.GetAxis ("Vertical");
 		Vector2 movement = new Vector2 (moveHorizontal, moveVertical);
 		rb2d.AddForce (movement * speed);
-	}
+    }
+
+    void Update()
+    {
+        //Tracer dash mechanic
+        if (Input.GetKeyDown("space"))
+        {
+            if (jumpCD)
+            {
+                float moveHorizontal = Input.GetAxis("Horizontal");
+                float moveVertical = Input.GetAxis("Vertical");
+                Vector3 flash = new Vector3(moveHorizontal, moveVertical, 0);
+                transform.position += (flash * jump);
+                jumpCD = false;
+                jumpTimer = jumpTime;
+            }
+        }
+
+        //Fire bullets
+        if (Input.GetMouseButtonDown(0))
+        {
+            PlayerGun();
+        }
+
+        //Tracer Dash mechanic CD
+        if (!(jumpCD))
+        {
+            if (jumpTimer > 0)
+            {
+                jumpTimer -= Time.deltaTime;
+            }
+            else
+            {
+                jumpCD = true;
+            }
+        }
+    }
 
 	void OnTriggerEnter2D(Collider2D other) 
 	{
@@ -37,6 +84,27 @@ using UnityEngine.UI;
 		}
 	}
 
+    //Fire bullets
+    void PlayerGun ()
+    {
+        float mouseHorizontal = Input.GetAxis("Mouse X");
+        float mouseVertical = Input.GetAxis("Mouse Y");
+        Vector3 mouseAim = new Vector3(mouseHorizontal, mouseVertical, 0);
+        mouseAim = Camera.main.ScreenToWorldPoint (Input.mousePosition);
+        Debug.Log(mouseAim);
+        mouseAim -= transform.position;
+        Debug.Log(mouseAim);
+        mouseAim.Normalize();
+        Debug.Log(mouseAim);
+
+        GameObject bullet = Instantiate(prefab) as GameObject;
+
+        bullet.transform.position = transform.position + mouseAim;
+        Rigidbody2D rb = bullet.GetComponent<Rigidbody2D>();
+        rb.velocity = mouseAim * bulletSpeed;
+    }
+
+    //Pick up collectibles
 	void SetCountText ()
 	{
 		countText.text = "Bubble Teas: " + count.ToString ();
