@@ -103,8 +103,12 @@ public class PlayerController : MonoBehaviour {
 	{
 		countText.text = "Bubble Teas: " + count.ToString ();
 
-		if (count >= 6) {
-			winText.text = "You win!";
+		if (count >= 25 && count < 50) {
+			winText.text = "Cheers, Love!";
 		}
+        else if (count >= 50)
+        {
+            winText.text = "Tea Time!";
+        }
 	}
 }
